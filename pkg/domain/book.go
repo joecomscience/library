@@ -10,10 +10,3 @@ type Book struct {
 	UpdatedDate string `json:"updated_date"`
 }
 
-type BookRepository interface {
-	FindAll() ([]Book, error)
-	FindById(string) (Book, error)
-	Create(Book) error
-	Update(Book) error
-	Delete(string) error
-}

@@ -3,14 +3,23 @@ package postgres
 import (
 	"database/sql"
 	"fmt"
-	"github.com/joecomscience/library-api/pkg/domain"
+	"github.com/joecomscience/library/pkg/domain"
 )
 
-type PostgresDBRepository struct {
+
+type BookRepository interface {
+	FindAll() ([]domain.Book, error)
+	FindById(string) (domain.Book, error)
+	Create(domain.Book) error
+	Update(domain.Book) error
+	Delete(string) error
+}
+
+type DBRepository struct {
 	*sql.DB
 }
 
-func (repo PostgresDBRepository) FindAll() ([]domain.Book, error) {
+func (repo DBRepository) FindAll() ([]domain.Book, error) {
 	var result []domain.Book
 	rows, err := repo.DB.Query("SELECT * FROM book")
 	if err != nil {
@@ -38,7 +47,7 @@ func (repo PostgresDBRepository) FindAll() ([]domain.Book, error) {
 	return result, nil
 }
 
-func (repo PostgresDBRepository) FindById(id string) (domain.Book, error) {
+func (repo DBRepository) FindById(id string) (domain.Book, error) {
 	var book domain.Book
 	row := repo.DB.QueryRow("SELECT * FROM book where id=$1", id)
 	if err := row.Scan(
@@ -55,7 +64,7 @@ func (repo PostgresDBRepository) FindById(id string) (domain.Book, error) {
 	return book, nil
 }
 
-func (repo PostgresDBRepository) Create(book domain.Book) error {
+func (repo DBRepository) Create(book domain.Book) error {
 	query := `
 INSERT INTO book(name, author, image, description) 
 VALUES($1, $2, $3, $4)
@@ -78,7 +87,7 @@ VALUES($1, $2, $3, $4)
 	return nil
 }
 
-func (repo PostgresDBRepository) Update(book domain.Book) error {
+func (repo DBRepository) Update(book domain.Book) error {
 	query := `
 UPDATE SET name = $1, author = $2, image = $3, description = $4 
 WHERE id = $5
@@ -102,7 +111,7 @@ WHERE id = $5
 	return nil
 }
 
-func (repo PostgresDBRepository) Delete(id string) error {
+func (repo DBRepository) Delete(id string) error {
 	query := `DELETE FROM book WHERE id = $1`
 	row, err := repo.DB.Exec(query, id)
 	if err != nil {

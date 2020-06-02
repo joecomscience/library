@@ -14,13 +14,7 @@ const (
 	dbname = "library"
 )
 
-type Manager struct {
-	Connection *sql.DB
-}
-
-var Postgres = new(Manager)
-
-func Init() {
+func Init() *sql.DB {
 	conStr := fmt.Sprintf("host=%s port=%d user=%s password=%s dbname=%s sslmode=disable", host, port, user, pass, dbname)
 	con, err := sql.Open("postgres", conStr)
 	if err != nil {
@@ -31,5 +25,5 @@ func Init() {
 		panic(err)
 	}
 
-	Postgres.Connection = con
+	return con
 }
